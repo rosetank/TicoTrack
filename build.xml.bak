@@ -1,0 +1,322 @@
+<!-- 
+===============================================================================
+Copyright: Copyright 2007-2014 GeoTelematic Solutions, Inc.
+Project  : OpenGTS - Open GPS Tracking System
+URL      : http://www.opengts.org
+File     : build.xml
+===============================================================================
+-->
+
+<project name="TicoTrack" default="help" basedir=".">
+
+  <!-- Build properties -->
+  <property environment="Env"/>
+  <property file="build.properties"/>
+
+  <!-- Server jar classpath -->
+  <property name="Server_Jar_Classpath" value="gtsutils.jar gtsdb.jar ruledb.jar bcrossdb.jar optdb.jar custom.jar"/>
+
+  <!-- jar classpath -->
+  <path id="compile.classpath">
+    <pathelement location="${build.home}"/>
+    <fileset dir="${build.lib}">
+        <include name="*.jar"/>
+    </fileset>
+  </path>
+
+  <!-- war classpath -->
+  <path id="compile.war.classpath">
+    <pathelement location="${build.home}"/>
+    <fileset dir="${build.lib}">
+        <include name="*.jar"/>
+    </fileset>
+    <fileset dir="${lib.home}">
+        <include name="**/*.jar"/>
+    </fileset>
+    <fileset dir="${catalina.home}"> 
+        <!-- Tomcat 6.0.XX -->
+        <include name="lib/*.jar"/>
+    </fileset>
+  </path>
+  
+  <!-- ======================================================================== -->
+  <!-- ======================================================================== -->
+
+  <!-- Target: help -->
+  <target name="help" 
+    description="Clean/Build project">
+    <echo message="clean    : Remove 'build' directory"/>
+    <echo message="gtsdmtp  : Create OpenGTS DMTP server with the MySQL datastore"/>
+    <echo message="events   : Create 'Events' Servlet WAR file"/>
+    <echo message="track    : Create 'Track' Servlet WAR file"/>
+    <echo message="mologogo : Create 'Mologogo' Servlet WAR file"/>
+    <echo message="tools    : Create miscellaneous tools (ie. 'CheckInstall')"/>
+    <echo message="all      : all of the above"/>
+    <echo message="help     : This help"/>
+  </target>
+  
+  <!-- Target: environment -->
+  <target name="environment" 
+    description="Display Environment settings">
+    <echo message="GTS_HOME      = ${Env.GTS_HOME}"/>
+    <echo message="GTS_CONF      = ${Env.GTS_CONF}"/>
+    <echo message="GTS_TOOLS     = ${Env.GTS_TOOLS}"/>
+    <echo message="JAVA_HOME     = ${Env.JAVA_HOME}"/>
+    <echo message="CATALINA_HOME = ${Env.CATALINA_HOME}"/>
+  </target>
+
+  <!-- ======================================================================== -->
+  <!-- ======================================================================== -->
+
+  <!-- Target: all -->
+  <target name="all" depends="clean,compile" 
+    description="Clean/Build Server and all WAR files">
+    <echo message="Build 'all' complete."/>
+  </target>
+
+  <!-- Target: clean -->
+  <target name="clean" 
+    description="Clean build">
+    <delete dir="${build.home}"/>
+    <delete file="${src.gts}/org/opengts/CompileTime.java"/>
+  </target>
+
+  <!-- Target: compile -->
+  <target name="compile" depends="compile.base" 
+    description="Build Server and all WAR files">
+    <echo message="Libraries compiled ..."/>
+  </target>
+
+  <!-- Target: compile.base -->
+  <target name="compile.base" depends="gtsutils" 
+    description="Build Base Libraries">
+    <echo message="Libraries compiled ..."/>
+  </target>
+
+
+  <!-- ======================================================================== -->
+
+  <!-- Target: tomcat "${catalina.home}" -->
+  <target name="tomcat.env" depends="tomcat.home"
+    description="Check for Tomcat environment variables"/>
+
+  <!-- Target: tomcat "${catalina.home}" -->
+  <target name="tomcat.home" 
+    description="Check for CATALINA_HOME environment variable">
+    <fail unless="Env.CATALINA_HOME">
+        CATALINA_HOME environment variable has not been defined.
+        (make sure CATALINA_HOME is defined and exported to the list of environment variables)
+    </fail>
+    <echo message="'CATALINA_HOME' is defined - ${Env.CATALINA_HOME}"/>
+  </target>
+
+  <!-- ======================================================================== -->
+
+  <!-- ======================================================================== -->
+
+  <!-- Target: prepare (create build directories) -->
+  <target name="prepare" 
+    description="Prepare for compile">
+    <mkdir dir="${build.home}"/>
+    <mkdir dir="${build.lib}"/>
+    <property name="compile.classpath" refid="compile.classpath"/>
+    <echo message="OS = ${os.name}"/>
+    <echo message="JavaHome = ${java.home}"/>
+
+    <!-- display Java version "java -version" on stdout -->
+    <exec executable="java" dir="${java.home}" failonerror="true">
+        <arg value="-version"/>
+    </exec>
+
+    <!-- copy library 'jars' to build directory "build/lib/" -->
+    <copy todir="${build.lib}" failonerror="true" verbose="false">
+        <fileset dir="${basedir}/lib/opendmtp">
+           <include name="*.jar"/>
+           <include name="dmtpserv.sh"/>
+        </fileset>
+        <fileset dir="${basedir}/lib/gtsopt">
+           <include name="*.jar"/>
+        </fileset>
+    </copy>
+    <chmod file="${build.lib}/dmtpserv.sh" perm="a+x"/>
+
+    <!-- copy 'war' files to build directory "build/" -->
+    <copy todir="${build.home}" failonerror="false" verbose="false">
+        <fileset dir="${basedir}/lib/gtsopt">
+           <include name="*.war"/>
+        </fileset>
+    </copy>
+
+    <!-- copy '.class' files to build directory "build/" -->
+    <echo message="(Ignore copy 'not found' warnings)"/>
+    <copy todir="${build.home}" failonerror="false" verbose="false">
+        <!-- ok if this directory does not exist -->
+        <fileset dir="${basedir}/lib/gtsopt/classes">
+           <include name="*.class"/>
+        </fileset>
+    </copy>
+
+  	<!-- copy 'jar' files to build directory "build/lib" -->
+    <copy todir="${build.lib}" failonerror="true" verbose="false">
+        <fileset dir="${basedir}/lib">
+           <include name="*.jar"/>
+        </fileset>
+    </copy>
+    
+    <!-- copy JavaMail support jars build directory -->
+    <mkdir dir="${basedir}/jlib/javamail"/>  <!-- make sure 'from' dir exists to avoid warnings -->
+    <copy todir="${build.lib}" failonerror="false" verbose="false">
+        <!-- ok if this file does not exist -->
+        <fileset dir="${basedir}/jlib/javamail">
+           <include name="*.jar"/>
+        </fileset>
+    </copy>
+
+    <!-- copy MySQL support to build directory -->
+    <mkdir dir="${basedir}/jlib/jdbc.mysql"/>  <!-- make sure 'from' dir exists to avoid warnings -->
+    <copy todir="${build.lib}" failonerror="false" verbose="false">
+        <!-- ok if this file does not exist -->
+        <fileset dir="${basedir}/jlib/jdbc.mysql">
+           <include name="*.jar"/>
+        </fileset>
+    </copy>
+
+    <!-- copy Apache support to build directory -->
+    <mkdir dir="${basedir}/jlib/apache"/>  <!-- make sure 'from' dir exists to avoid warnings -->
+    <copy todir="${build.lib}" failonerror="false" verbose="false">
+        <!-- ok if this file does not exist -->
+        <fileset dir="${basedir}/jlib/apache">
+           <include name="*.jar"/>
+        </fileset>
+    </copy>
+
+  </target>
+
+<!-- ======================================================================== -->
+
+  <!-- Target: gtsutils.jar -->
+  <target name="gtsutils" depends="gtsutils.jar"/>
+
+  <!-- Target: gtsutils.compile -->
+  <target name="gtsutils.compile" depends="prepare" 
+    description="Compile 'gtsutils.jar' components">
+    <echo message="Compiling gtsutils.jar source ... "/>
+
+    <!--
+    <echo message="Ignore any &quot;sun.reflect.Reflection&quot; warnings that may be displayed"/>
+    -->
+
+    <!-- compile GTS utils (sans "SendMailArgs.java", "ExcelTools.java") -->
+    <javac srcdir="${src.gts}"
+        includeAntRuntime="false"
+        source="${compiler.source}"
+        target="${compiler.target}"
+        destdir="${build.home}"
+        debug="${compile.debug}"
+        nowarn="${compile.nowarn}"
+        deprecation="${compile.deprecation}"
+        optimize="${compile.optimize}">
+        <!-- the utils dir has known unchecked warnings (ie. anything with "newInstance" etc) -->
+        <compilerarg compiler="${compiler.compiler}" value="-Xlint:all,-serial,-path"/>
+        <classpath refid="compile.classpath"/>
+      <!-- Utils -->
+        <include name="org/opengts/util/**/*.java"/>
+        <exclude name="org/opengts/util/SendMailArgs.java"/>
+        <exclude name="org/opengts/util/ExcelTools.java"/>
+        <include name="org/opengts/extra/util/**/*.java"/>
+      <!-- MobileLocationProvider (moved to 'gtsdb.jar') -->
+        <!-- include name="org/opengts/cellid/**/*.java"/ -->
+        <!-- include name="org/opengts/extra/cellid/**/*.java"/ -->
+      <!-- Misc -->
+        <include name="org/opengts/google/**/*.java"/>
+        <include name="org/opengts/extra/shapefile/**/*.java"/>
+    </javac>
+
+    <!-- compile "SendMailArgs.java" -->
+    <!-- (continue if this compile fails) -->
+    <echo message="Compiling SendMailArgs.java (optional if 'mail.jar' not available) ... "/>
+    <javac srcdir="${src.gts}"
+        includeAntRuntime="false"
+        source="${compiler.source}"
+        target="${compiler.target}"
+        destdir="${build.home}"
+        debug="${compile.debug}"
+        nowarn="${compile.nowarn}"
+        deprecation="${compile.deprecation}"
+        optimize="${compile.optimize}"
+        failonerror="false">
+        <compilerarg compiler="${compiler.compiler}" value="-Xlint:all,-serial,-path"/>
+        <classpath refid="compile.classpath"/>
+        <include name="org/opengts/util/SendMailArgs.java"/>
+    </javac>
+    <!-- -->
+
+    <!-- compile GTS dbtools -->
+    <echo message="Compiling dbtools ... "/>
+    <javac srcdir="${src.gts}"
+        includeAntRuntime="false"
+        source="${compiler.source}"
+        target="${compiler.target}"
+        destdir="${build.home}"
+        debug="${compile.debug}"
+        nowarn="${compile.nowarn}"
+        deprecation="${compile.deprecation}"
+        optimize="${compile.optimize}">
+        <!-- the dbtools dir has known unchecked warnings (ie. DBRecordIterator.java) -->
+        <compilerarg compiler="${compiler.compiler}" value="-Xlint:all,-serial,-path"/>
+        <classpath refid="compile.classpath"/>
+        <include name="org/opengts/dbtools/**/*.java"/>
+        <include name="org/opengts/extra/dbtools/**/*.java"/>
+    </javac>
+
+  </target>
+
+  <!-- Target: gtsutils.jar -->
+  <target name="gtsutils.jar" depends="prepare,gtsutils.compile" 
+    description="Create 'gtsutils.jar'">
+    <echo message="Creating gtsutils.jar ... "/>
+
+    <!-- copy Locale properties -->
+    <copy todir="${build.home}" verbose="false">
+        <fileset dir="${src.gts}">
+          <!-- Util -->
+            <include name="org/opengts/util/**/*.properties"/>
+            <include name="org/opengts/extra/util/**/*.properties"/>
+          <!-- DB Tools -->
+            <include name="org/opengts/dbtools/**/*.properties"/>
+            <include name="org/opengts/extra/dbtools/**/*.properties"/>
+          <!-- Misc -->
+            <include name="org/opengts/google/**/*.properties"/>
+            <include name="org/opengts/extra/shapefile/**/*.properties"/>
+        </fileset>
+    </copy>
+
+    <!-- create gtsutils.jar file -->
+    <jar jarfile="${build.lib}/gtsutils.jar">
+        <fileset dir="${build.home}">
+          <!-- Util -->
+            <include name="org/opengts/util/**/*.class"/>
+            <include name="org/opengts/util/**/*.properties"/>
+            <include name="org/opengts/extra/util/**/*.class"/>
+            <include name="org/opengts/extra/util/**/*.properties"/>
+          <!-- DB tools -->
+            <include name="org/opengts/dbtools/**/*.class"/>
+            <include name="org/opengts/dbtools/**/*.properties"/>
+            <include name="org/opengts/extra/dbtools/**/*.class"/>
+            <include name="org/opengts/extra/dbtools/**/*.properties"/>
+          <!-- Misc -->
+            <include name="org/opengts/google/**/*.class"/>
+            <include name="org/opengts/google/**/*.properties"/>
+            <include name="org/opengts/extra/shapefile/**/*.class"/>
+            <include name="org/opengts/extra/shapefile/**/*.properties"/>
+        </fileset>
+    </jar>
+
+  </target>
+
+  <!-- ======================================================================== -->
+  
+
+  <!-- ======================================================================== -->
+
+</project>
