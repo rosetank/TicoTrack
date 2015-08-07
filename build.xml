@@ -1,8 +1,6 @@
 <!-- 
 ===============================================================================
-Copyright: Copyright 2007-2014 GeoTelematic Solutions, Inc.
-Project  : OpenGTS - Open GPS Tracking System
-URL      : http://www.opengts.org
+Project  : TicoTrack
 File     : build.xml
 ===============================================================================
 -->
@@ -14,7 +12,7 @@ File     : build.xml
   <property file="build.properties"/>
 
   <!-- Server jar classpath -->
-  <property name="Server_Jar_Classpath" value="gtsutils.jar gtsdb.jar ruledb.jar bcrossdb.jar optdb.jar custom.jar"/>
+  <property name="Server_Jar_Classpath" value="ticoutils.jar ticodb.jar ticogeo.jar"/>
 
   <!-- jar classpath -->
   <path id="compile.classpath">
@@ -34,7 +32,6 @@ File     : build.xml
         <include name="**/*.jar"/>
     </fileset>
     <fileset dir="${catalina.home}"> 
-        <!-- Tomcat 6.0.XX -->
         <include name="lib/*.jar"/>
     </fileset>
   </path>
@@ -46,11 +43,7 @@ File     : build.xml
   <target name="help" 
     description="Clean/Build project">
     <echo message="clean    : Remove 'build' directory"/>
-    <echo message="gtsdmtp  : Create OpenGTS DMTP server with the MySQL datastore"/>
     <echo message="events   : Create 'Events' Servlet WAR file"/>
-    <echo message="track    : Create 'Track' Servlet WAR file"/>
-    <echo message="mologogo : Create 'Mologogo' Servlet WAR file"/>
-    <echo message="tools    : Create miscellaneous tools (ie. 'CheckInstall')"/>
     <echo message="all      : all of the above"/>
     <echo message="help     : This help"/>
   </target>
@@ -78,7 +71,7 @@ File     : build.xml
   <target name="clean" 
     description="Clean build">
     <delete dir="${build.home}"/>
-    <delete file="${src.gts}/org/opengts/CompileTime.java"/>
+    <delete file="${src.tico}/com/ticotrack/CompileTime.java"/>
   </target>
 
   <!-- Target: compile -->
@@ -88,7 +81,7 @@ File     : build.xml
   </target>
 
   <!-- Target: compile.base -->
-  <target name="compile.base" depends="gtsutils" 
+  <target name="compile.base" depends="ticoutils" 
     description="Build Base Libraries">
     <echo message="Libraries compiled ..."/>
   </target>
@@ -128,34 +121,6 @@ File     : build.xml
         <arg value="-version"/>
     </exec>
 
-    <!-- copy library 'jars' to build directory "build/lib/" -->
-    <copy todir="${build.lib}" failonerror="true" verbose="false">
-        <fileset dir="${basedir}/lib/opendmtp">
-           <include name="*.jar"/>
-           <include name="dmtpserv.sh"/>
-        </fileset>
-        <fileset dir="${basedir}/lib/gtsopt">
-           <include name="*.jar"/>
-        </fileset>
-    </copy>
-    <chmod file="${build.lib}/dmtpserv.sh" perm="a+x"/>
-
-    <!-- copy 'war' files to build directory "build/" -->
-    <copy todir="${build.home}" failonerror="false" verbose="false">
-        <fileset dir="${basedir}/lib/gtsopt">
-           <include name="*.war"/>
-        </fileset>
-    </copy>
-
-    <!-- copy '.class' files to build directory "build/" -->
-    <echo message="(Ignore copy 'not found' warnings)"/>
-    <copy todir="${build.home}" failonerror="false" verbose="false">
-        <!-- ok if this directory does not exist -->
-        <fileset dir="${basedir}/lib/gtsopt/classes">
-           <include name="*.class"/>
-        </fileset>
-    </copy>
-
   	<!-- copy 'jar' files to build directory "build/lib" -->
     <copy todir="${build.lib}" failonerror="true" verbose="false">
         <fileset dir="${basedir}/lib">
@@ -167,21 +132,22 @@ File     : build.xml
 
 <!-- ======================================================================== -->
 
-  <!-- Target: gtsutils.jar -->
-  <target name="gtsutils" depends="gtsutils.jar"/>
+  <!-- Target: ticoutils.jar -->
+  <target name="ticoutils" depends="ticoutils.jar"/>
 
-  <!-- Target: gtsutils.compile -->
-  <target name="gtsutils.compile" depends="prepare" 
-    description="Compile 'gtsutils.jar' components">
-    <echo message="Compiling gtsutils.jar source ... "/>
+  <!-- Target: ticoutils.compile -->
+  <target name="ticoutils.compile" depends="prepare" 
+    description="Compile 'ticoutils.jar' components">
+    <echo message="Compiling ticoutils.jar source ... "/>
 
     <!--
     <echo message="Ignore any &quot;sun.reflect.Reflection&quot; warnings that may be displayed"/>
     -->
 
-    <!-- compile GTS utils (sans "SendMailArgs.java", "ExcelTools.java") -->
-    <javac srcdir="${src.gts}"
+    <!-- compile Tico utils (sans "SendMailArgs.java", "ExcelTools.java") -->
+    <javac srcdir="${src.tico}"
         includeAntRuntime="false"
+        encoding="UTF-8"
         source="${compiler.source}"
         target="${compiler.target}"
         destdir="${build.home}"
@@ -193,22 +159,15 @@ File     : build.xml
         <compilerarg compiler="${compiler.compiler}" value="-Xlint:all,-serial,-path"/>
         <classpath refid="compile.classpath"/>
       <!-- Utils -->
-        <include name="org/opengts/util/**/*.java"/>
-        <exclude name="org/opengts/util/SendMailArgs.java"/>
-        <exclude name="org/opengts/util/ExcelTools.java"/>
-        <include name="org/opengts/extra/util/**/*.java"/>
-      <!-- MobileLocationProvider (moved to 'gtsdb.jar') -->
-        <!-- include name="org/opengts/cellid/**/*.java"/ -->
-        <!-- include name="org/opengts/extra/cellid/**/*.java"/ -->
-      <!-- Misc -->
-        <include name="org/opengts/google/**/*.java"/>
-        <include name="org/opengts/extra/shapefile/**/*.java"/>
+        <include name="com/ticotrack/util/**/*.java"/>
+        <exclude name="com/ticotrack/util/SendMailArgs.java"/>
+        <exclude name="com/ticotrack/util/ExcelTools.java"/>
     </javac>
 
     <!-- compile "SendMailArgs.java" -->
     <!-- (continue if this compile fails) -->
     <echo message="Compiling SendMailArgs.java (optional if 'mail.jar' not available) ... "/>
-    <javac srcdir="${src.gts}"
+    <javac srcdir="${src.tico}"
         includeAntRuntime="false"
         source="${compiler.source}"
         target="${compiler.target}"
@@ -220,13 +179,13 @@ File     : build.xml
         failonerror="false">
         <compilerarg compiler="${compiler.compiler}" value="-Xlint:all,-serial,-path"/>
         <classpath refid="compile.classpath"/>
-        <include name="org/opengts/util/SendMailArgs.java"/>
+        <include name="com/ticotrack/util/SendMailArgs.java"/>
     </javac>
     <!-- -->
 
     <!-- compile GTS dbtools -->
     <echo message="Compiling dbtools ... "/>
-    <javac srcdir="${src.gts}"
+    <javac srcdir="${src.tico}"
         includeAntRuntime="false"
         source="${compiler.source}"
         target="${compiler.target}"
@@ -235,61 +194,422 @@ File     : build.xml
         nowarn="${compile.nowarn}"
         deprecation="${compile.deprecation}"
         optimize="${compile.optimize}">
-        <!-- the dbtools dir has known unchecked warnings (ie. DBRecordIterator.java) -->
         <compilerarg compiler="${compiler.compiler}" value="-Xlint:all,-serial,-path"/>
         <classpath refid="compile.classpath"/>
-        <include name="org/opengts/dbtools/**/*.java"/>
-        <include name="org/opengts/extra/dbtools/**/*.java"/>
+        <include name="com/ticotrack/dbtools/**/*.java"/>
     </javac>
 
   </target>
 
-  <!-- Target: gtsutils.jar -->
-  <target name="gtsutils.jar" depends="prepare,gtsutils.compile" 
-    description="Create 'gtsutils.jar'">
-    <echo message="Creating gtsutils.jar ... "/>
+  <!-- Target: ticoutils.jar -->
+  <target name="ticoutils.jar" depends="prepare,ticoutils.compile" 
+    description="Create 'ticoutils.jar'">
+    <echo message="Creating ticoutils.jar ... "/>
 
     <!-- copy Locale properties -->
     <copy todir="${build.home}" verbose="false">
-        <fileset dir="${src.gts}">
+        <fileset dir="${src.tico}">
           <!-- Util -->
-            <include name="org/opengts/util/**/*.properties"/>
-            <include name="org/opengts/extra/util/**/*.properties"/>
+            <include name="com/ticotrack/util/**/*.properties"/>
           <!-- DB Tools -->
-            <include name="org/opengts/dbtools/**/*.properties"/>
-            <include name="org/opengts/extra/dbtools/**/*.properties"/>
-          <!-- Misc -->
-            <include name="org/opengts/google/**/*.properties"/>
-            <include name="org/opengts/extra/shapefile/**/*.properties"/>
+            <include name="com/ticotrack/dbtools/**/*.properties"/>
         </fileset>
     </copy>
 
-    <!-- create gtsutils.jar file -->
-    <jar jarfile="${build.lib}/gtsutils.jar">
+    <!-- create ticoutils.jar file -->
+    <jar jarfile="${build.lib}/ticoutils.jar">
         <fileset dir="${build.home}">
           <!-- Util -->
-            <include name="org/opengts/util/**/*.class"/>
-            <include name="org/opengts/util/**/*.properties"/>
-            <include name="org/opengts/extra/util/**/*.class"/>
-            <include name="org/opengts/extra/util/**/*.properties"/>
+            <include name="com/ticotrack/util/**/*.class"/>
+            <include name="com/ticotrack/util/**/*.properties"/>
+            <include name="com/ticotrack/extra/util/**/*.class"/>
+            <include name="com/ticotrack/extra/util/**/*.properties"/>
           <!-- DB tools -->
-            <include name="org/opengts/dbtools/**/*.class"/>
-            <include name="org/opengts/dbtools/**/*.properties"/>
-            <include name="org/opengts/extra/dbtools/**/*.class"/>
-            <include name="org/opengts/extra/dbtools/**/*.properties"/>
+            <include name="com/ticotrack/dbtools/**/*.class"/>
+            <include name="com/ticotrack/dbtools/**/*.properties"/>
+            <include name="com/ticotrack/extra/dbtools/**/*.class"/>
+            <include name="com/ticotrack/extra/dbtools/**/*.properties"/>
           <!-- Misc -->
-            <include name="org/opengts/google/**/*.class"/>
-            <include name="org/opengts/google/**/*.properties"/>
-            <include name="org/opengts/extra/shapefile/**/*.class"/>
-            <include name="org/opengts/extra/shapefile/**/*.properties"/>
+            <include name="com/ticotrack/google/**/*.class"/>
+            <include name="com/ticotrack/google/**/*.properties"/>
+            <include name="com/ticotrack/extra/shapefile/**/*.class"/>
+            <include name="com/ticotrack/extra/shapefile/**/*.properties"/>
         </fileset>
     </jar>
 
   </target>
 
+  <!-- Target: CompileTime.java -->
+  <target name="CompileTime.java"
+    description="Create CompileTime.java">
+
+    <!-- (re)create compile time source file here? -->
+    <echo message="Creating CompileTime module ..."/>
+    <java classname="com.ticotrack.util.CompiletimeVars" fork="true" failonerror="true">
+        <arg value="-configFileDir=${basedir}"/>
+        <arg value="-template?=${basedir}/CompileTime.jtemp"/>
+        <arg value="-package=com.ticotrack"/>
+        <arg value="-output=${src.tico}/com/ticotrack/CompileTime.java"/>
+        <arg value="-overwrite=false"/> <!-- do not overwrite -->
+        <arg value="-extra=${CompiletimeVars.extra}"/>
+        <arg value="${CompiletimeVars.arg}"/>
+        <arg value="${CompiletimeVars.arg.1}"/>
+        <arg value="${CompiletimeVars.arg.2}"/>
+        <arg value="${CompiletimeVars.arg.3}"/>
+        <classpath>
+            <pathelement location="${build.lib}/ticoutils.jar"/>
+        </classpath>
+    </java>
+
+  </target>
+  
+    <!-- Target: ticodb.jar -->
+  <target name="ticodb.jar" depends="ticodb"/>
+  <target name="ticodb" depends="prepare,ticoutils,CompileTime.java" 
+    description="Create 'ticodb.jar'">
+
+    <!-- compile GTS db -->
+    <echo message="Creating ticodb.jar ..."/>
+    <javac srcdir="${src.tico}"
+        includeAntRuntime="false"
+        encoding="UTF-8"
+        source="${compiler.source}"
+        target="${compiler.target}"
+        destdir="${build.home}"
+        debug="${compile.debug}"
+        nowarn="${compile.nowarn}"
+        deprecation="${compile.deprecation}"
+        optimize="${compile.optimize}">
+        <compilerarg compiler="${compiler.compiler}" value="${compile.Xlint}"/>
+        <!-- <compilerarg value="-Xlint:unchecked"/> -->
+        <classpath refid="compile.classpath"/>
+        <!-- StartupInit.java, CompileTime.java -->
+        <include name="com/ticotrack/*.java"/>
+        <!-- Misc -->
+        <include name="com/ticotrack/dbtypes/**/*.java"/>
+        <include name="com/ticotrack/db/**/*.java"/>
+    </javac>
+
+    <!-- copy Locale properties -->
+    <copy todir="${build.home}" verbose="false">
+        <fileset dir="${src.tico}">
+            <include name="com/ticotrack/*.properties"/>
+            <!-- Misc -->
+            <include name="com/ticotrack/dbtypes/**/*.properties"/>
+            <include name="com/ticotrack/db/**/*.properties"/>
+        </fileset>
+    </copy>
+
+    <!-- create ticodb.jar file -->
+    <jar jarfile="${build.lib}/ticodb.jar">
+        <fileset dir="${build.home}">
+            <!-- StartupInit, CompileTime -->
+            <include name="com/ticotrack/*.class"/>
+            <include name="com/ticotrack/*.properties"/>
+            <!-- Misc -->
+            <include name="com/ticotrack/dbtypes/**/*.class"/>
+            <include name="com/ticotrack/dbtypes/**/*.properties"/>
+            <include name="com/ticotrack/db/**/*.class"/>
+            <include name="com/ticotrack/db/**/*.properties"/>
+        </fileset>
+    </jar>
+
+  </target>
   <!-- ======================================================================== -->
   
+   <!-- Target: ticodb.jar -->
+  <target name="ticogeo.jar" depends="ticogeo"/>
+  <target name="ticogeo" depends="prepare,ticoutils,CompileTime.java" 
+    description="Create 'ticogeo.jar'">
 
+    <!-- compile GTS db -->
+    <echo message="Creating ticogeo.jar ..."/>
+    <javac srcdir="${src.tico}"
+        includeAntRuntime="false"
+        encoding="UTF-8"
+        source="${compiler.source}"
+        target="${compiler.target}"
+        destdir="${build.home}"
+        debug="${compile.debug}"
+        nowarn="${compile.nowarn}"
+        deprecation="${compile.deprecation}"
+        optimize="${compile.optimize}">
+        <compilerarg compiler="${compiler.compiler}" value="${compile.Xlint}"/>
+        <!-- <compilerarg value="-Xlint:unchecked"/> -->
+        <classpath refid="compile.classpath"/>
+        <!-- [Reverse]GeocodeProvider -->
+        <include name="com/ticotrack/geocoder/**/*.java"/>
+        <!-- MobileLocationProvider -->
+        <include name="com/ticotrack/cellid/**/*.java"/>
+    </javac>
+
+    <!-- copy Locale properties -->
+    <copy todir="${build.home}" verbose="false">
+        <fileset dir="${src.tico}">
+            <!-- [Reverse]GeocodeProvider -->
+            <include name="com/ticotrack/geocoder/**/*.properties"/>
+            <!-- MobileLocationProvider -->
+            <include name="com/ticotrack/cellid/**/*.properties"/>
+        </fileset>
+    </copy>
+
+    <!-- create ticodb.jar file -->
+    <jar jarfile="${build.lib}/ticogeo.jar">
+        <fileset dir="${build.home}">
+            <!-- [Reverse]GeocodeProvider -->
+            <include name="com/ticotrack/geocoder/**/*.class"/>
+            <include name="com/ticotrack/geocoder/**/*.properties"/>
+            <!-- MobileLocationProvider -->
+            <include name="com/ticotrack/cellid/**/*.class"/>
+            <include name="com/ticotrack/cellid/**/*.properties"/>
+        </fileset>
+    </jar>
+
+  </target>
+  
+  <!-- ======================================================================== -->
+  
+    <!-- Target: wartools.jar -->
+  <target name="wartools.jar" depends="wartools"/>
+  <target name="wartools" depends="tomcat.env,prepare,ticodb,ticogeo" 
+    description="Create 'wartools.jar'">
+    <echo message="Creating 'wartools.jar' ..."/>
+    <property name="compile.war.classpath" refid="compile.war.classpath"/>
+
+    <!-- compile war tools -->
+    <javac srcdir="${src.tico}"
+        includeAntRuntime="false"
+        source="${compiler.source}"
+        target="${compiler.target}"
+        destdir="${build.home}"
+        debug="${compile.debug}"
+        nowarn="${compile.nowarn}"
+        deprecation="${compile.deprecation}"
+        optimize="${compile.optimize}">
+        <compilerarg compiler="${compiler.compiler}" value="${compile.Xlint}"/>
+        <classpath refid="compile.war.classpath"/>
+        <include name="com/ticotrack/war/tools/**/*.java"/>
+        <include name="com/ticotrack/war/report/**/*.java"/>
+        <include name="com/ticotrack/extra/war/report/**/*.java"/>
+    </javac>
+
+    <!-- copy Locale properties -->
+    <copy todir="${build.home}" verbose="false">
+        <fileset dir="${src.tico}">
+            <include name="com/ticotrack/war/tools/**/*.properties"/>
+            <include name="com/ticotrack/war/report/**/*.properties"/>
+            <include name="com/ticotrack/extra/war/report/**/*.properties"/>
+        </fileset>
+    </copy>
+
+    <!-- create wartools.jar file -->
+    <jar jarfile="${build.lib}/wartools.jar">
+        <fileset dir="${build.home}">
+            <include name="com/ticotrack/war/tools/**/*.class"/>
+            <include name="com/ticotrack/war/tools/**/*.properties"/>
+            <include name="com/ticotrack/war/report/**/*.class"/>
+            <include name="com/ticotrack/war/report/**/*.properties"/>
+            <include name="com/ticotrack/extra/war/report/**/*.class"/>
+            <include name="com/ticotrack/extra/war/report/**/*.properties"/>
+        </fileset>
+    </jar>
+
+  </target>
+  
+  <!-- events servlet build directory -->
+  <property name="build.events" value="${build.home}/events"/>
+
+  <!-- Target: events -->
+  <target name="events.all" depends="events"/> 
+  <target name="events" depends="events.compile,events.war" 
+    description="Compile/Create 'events.war'">
+    <echo message="'events.war' created."/>
+  </target>
+
+  <!-- Target: events.compile -->
+  <target name="events.compile" depends="tomcat.env,prepare,ticodb,wartools" 
+    description="Compile 'events.war' source">
+
+    <echo message="Compiling 'events.war' servlet ..."/>
+    <delete file="${build.home}/events.war"/>
+    <mkdir dir="${build.events}"/>
+    <mkdir dir="${build.events}/WEB-INF"/>
+    <mkdir dir="${build.events}/WEB-INF/classes"/>
+    <mkdir dir="${build.events}/WEB-INF/tlds"/>
+    <property name="compile.war.classpath" refid="compile.war.classpath"/>
+
+    <!-- compile event servlet -->
+    <javac srcdir="${src.tico}"
+        includeAntRuntime="false"
+        source="${compiler.source}"
+        target="${compiler.target}"
+        destdir="${build.events}/WEB-INF/classes"
+        debug="${compile.debug}"
+        nowarn="${compile.nowarn}"
+        deprecation="${compile.deprecation}"
+        optimize="${compile.optimize}">
+        <compilerarg compiler="${compiler.compiler}" value="${compile.Xlint}"/>
+        <classpath refid="compile.war.classpath"/>
+        <include name="com/ticotrack/war/events/**/*.java"/>
+    </javac>
+
+    <!-- .conf files -->
+    <copy todir="${build.events}/WEB-INF" verbose="false">
+        <fileset dir="${basedir}">
+            <include name="webapp.conf"/>
+            <include name="common.conf"/>
+            <include name="system.conf"/>
+            <include name="config.conf"/>
+        </fileset>
+    </copy>
+
+    <!-- override .conf -->
+    <copy todir="${build.events}" verbose="false" overwrite="true">
+        <fileset dir="${war.home}/events" excludes="**/*.java"/>
+        <!-- this list may contain a custom "webapp.conf" file -->
+    </copy>
+
+    <!-- "private*.xml" files -->
+    <copy todir="${build.events}/WEB-INF" verbose="false">
+        <fileset dir="${basedir}">
+            <include name="private.dtd"/>
+            <include name="private*.xml"/>
+        </fileset>
+    </copy>
+
+    <!-- "private/private*.xml" files -->
+    <copy todir="${build.events}/WEB-INF" failonerror="false" verbose="false">
+        <fileset dir="${basedir}/private">
+            <include name="private*.xml"/>
+        </fileset>
+    </copy>
+
+  </target>
+  
+  <!-- Target: events.war -->
+  <target name="events.war" depends="" 
+    description="Create 'events.war' archive">
+    <echo message="Creating 'events.war' file ..."/>
+
+    <!-- create events.war file -->
+    <delete file="${build.home}/events.war"/>
+    <war warfile="${build.home}/events.war" webxml="${build.events}/WEB-INF/web.xml">
+        <classes dir="${build.events}/WEB-INF/classes">
+            <include name="com/ticotrack/war/events/**/*"/>
+        </classes>
+        <lib dir="${build.lib}">
+            <include name="ticoutils.jar"/>
+            <include name="ticodb.jar"/>
+            <include name="ticogeo.jar"/>
+            <include name="wartools.jar"/>
+        </lib>
+        <fileset dir="${build.events}">
+            <include name="**/*"/>
+            <exclude name="WEB-INF/web.xml"/>
+            <exclude name="WEB-INF/classes/**/*"/>
+            <exclude name="WEB-INF/lib/**/*"/>
+        </fileset>
+    </war>
+
+  </target>  
+
+
+  <!-- events servlet build directory -->
+  <property name="build.user" value="${build.home}/user"/>
+
+  <!-- Target: user -->
+  <target name="user.all" depends="user"/> 
+  <target name="user" depends="user.compile,user.war" 
+    description="Compile/Create 'user.war'">
+    <echo message="'user.war' created."/>
+  </target>
+
+  <!-- Target: events.compile -->
+  <target name="user.compile" depends="tomcat.env,prepare,ticodb,wartools" 
+    description="Compile 'user.war' source">
+
+    <echo message="Compiling 'user.war' servlet ..."/>
+    <delete file="${build.home}/user.war"/>
+    <mkdir dir="${build.user}"/>
+    <mkdir dir="${build.user}/WEB-INF"/>
+    <mkdir dir="${build.user}/WEB-INF/classes"/>
+    <mkdir dir="${build.user}/WEB-INF/tlds"/>
+    <property name="compile.war.classpath" refid="compile.war.classpath"/>
+
+    <!-- compile event servlet -->
+    <javac srcdir="${src.tico}"
+        includeAntRuntime="false"
+        source="${compiler.source}"
+        target="${compiler.target}"
+        destdir="${build.user}/WEB-INF/classes"
+        debug="${compile.debug}"
+        nowarn="${compile.nowarn}"
+        deprecation="${compile.deprecation}"
+        optimize="${compile.optimize}">
+        <compilerarg compiler="${compiler.compiler}" value="${compile.Xlint}"/>
+        <classpath refid="compile.war.classpath"/>
+        <include name="com/ticotrack/war/user/**/*.java"/>
+    </javac>
+
+    <!-- .conf files -->
+    <copy todir="${build.user}/WEB-INF" verbose="false">
+        <fileset dir="${basedir}">
+            <include name="webapp.conf"/>
+            <include name="common.conf"/>
+            <include name="system.conf"/>
+            <include name="config.conf"/>
+        </fileset>
+    </copy>
+
+    <!-- override .conf -->
+    <copy todir="${build.user}" verbose="false" overwrite="true">
+        <fileset dir="${war.home}/user" excludes="**/*.java"/>
+        <!-- this list may contain a custom "webapp.conf" file -->
+    </copy>
+
+    <!-- "private*.xml" files -->
+    <copy todir="${build.user}/WEB-INF" verbose="false">
+        <fileset dir="${basedir}">
+            <include name="private.dtd"/>
+            <include name="private*.xml"/>
+        </fileset>
+    </copy>
+
+    <!-- "private/private*.xml" files -->
+    <copy todir="${build.user}/WEB-INF" failonerror="false" verbose="false">
+        <fileset dir="${basedir}/private">
+            <include name="private*.xml"/>
+        </fileset>
+    </copy>
+
+  </target>
+  
+  <!-- Target: events.war -->
+  <target name="user.war" depends="" 
+    description="Create 'user.war' archive">
+    <echo message="Creating 'user.war' file ..."/>
+
+    <!-- create events.war file -->
+    <delete file="${build.home}/user.war"/>
+    <war warfile="${build.home}/user.war" webxml="${build.user}/WEB-INF/web.xml">
+        <classes dir="${build.user}/WEB-INF/classes">
+            <include name="com/ticotrack/war/user/**/*"/>
+        </classes>
+        <lib dir="${build.lib}">
+            <include name="ticoutils.jar"/>
+            <include name="ticodb.jar"/>
+            <include name="ticogeo.jar"/>
+            <include name="wartools.jar"/>
+        </lib>
+        <fileset dir="${build.user}">
+            <include name="**/*"/>
+            <exclude name="WEB-INF/web.xml"/>
+            <exclude name="WEB-INF/classes/**/*"/>
+            <exclude name="WEB-INF/lib/**/*"/>
+        </fileset>
+    </war>
+
+  </target>  
   <!-- ======================================================================== -->
 
 </project>

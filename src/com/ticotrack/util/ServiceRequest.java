@@ -533,7 +533,7 @@ public class ServiceRequest
             MBeanServerConnection mbsc = jmxc.getMBeanServerConnection();
 
             /* service name */
-            String objName = this.getJMXObjectName(); // "org.opengts.extra.war.service:type=ServiceProxy";
+            String objName = this.getJMXObjectName(); // "com.ticotrack.extra.war.service:type=ServiceProxy";
             ObjectName name = null;
             try {
                 name = new ObjectName(objName);

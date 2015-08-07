@@ -2697,8 +2697,8 @@ public class ServerSocketThread
                     //   at java.net.PlainSocketImpl.socketSetOption(Native Method)
                     //   at java.net.PlainSocketImpl.setOption(PlainSocketImpl.java:282)
                     //   at java.net.Socket.setSoLinger(Socket.java:907)
-                    //   at org.opengts.util.ServerSocketThread$ClientSocket.setSoLinger(ServerSocketThread.java:1432)
-                    //   at org.opengts.util.ServerSocketThread$ServerSessionThread.run(ServerSocketThread.java:1845)
+                    //   at com.ticotrack.util.ServerSocketThread$ClientSocket.setSoLinger(ServerSocketThread.java:1432)
+                    //   at com.ticotrack.util.ServerSocketThread$ServerSessionThread.run(ServerSocketThread.java:1845)
                     Print.logException("[non-critical]: setSoLinger("+ltSec+")", se);
                     // continue
                 } catch (Throwable t) {

@@ -164,7 +164,7 @@ public class StringTools
     // ------------------------------------------------------------------------
 
     /**
-    *** Validates and returns an offset that fits within the specified length
+    *** 验证并返回指定长度范围内的偏移量
     *** @param ofs     The offset to validate.
     *** @param length  The length used to constrain the offset (assumed to be valid)
     *** @return The constrained offset value 

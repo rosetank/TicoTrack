@@ -573,7 +573,7 @@ public class I18N
         RTConfig.setCommandLineArgs(argv);
         
         if (RTConfig.hasProperty(ARG_PACKAGE)) {
-            String pkg = RTConfig.getString(ARG_PACKAGE,"org.opengts.util");
+            String pkg = RTConfig.getString(ARG_PACKAGE,"com.ticotrack.util");
             String loc = RTConfig.getString(ARG_LOCALE ,"en");
             String key = RTConfig.getString(ARG_KEY    ,"");
             Locale locale = I18N.getLocale(loc);

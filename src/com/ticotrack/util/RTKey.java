@@ -5,7 +5,7 @@ import java.util.*;
 import java.lang.reflect.*;
 
 /**
-*** Container for runtime property keys，实现Comparable接口
+*** Container for runtime property keys
 **/
 
 public class RTKey

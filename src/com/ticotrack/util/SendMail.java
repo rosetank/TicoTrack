@@ -89,7 +89,7 @@ public class SendMail
     // ------------------------------------------------------------------------
     // ------------------------------------------------------------------------
 
-    public  static final String SendMailArgs_className  = "org.opengts.util.SendMailArgs";
+    public  static final String SendMailArgs_className  = "com.ticotrack.util.SendMailArgs";
 
     private static Class _SendMailArgs_class            = null;
 

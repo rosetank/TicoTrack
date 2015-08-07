@@ -541,8 +541,8 @@ public class Print
                 return null; // we're done, no class name defined
             } else
             if (rosClassName.equalsIgnoreCase("CachedLogOutputStream")) {
-                // log.redirectLog=org.opengts.util.CachedLogOutputStream
-                rosClassName = "org.opengts.util.CachedLogOutputStream";
+                // log.redirectLog=com.ticotrack.util.CachedLogOutputStream
+                rosClassName = "com.ticotrack.util.CachedLogOutputStream";
             }
 
             /* create instance */

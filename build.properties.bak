@@ -6,22 +6,12 @@
 # -- Destination
 destination.name=ticotrack
 
-# -- Install home directory
-install.home=${basedir}/install
-install.user=ticotrack
-
 # -- Source directories
-src.gts=${basedir}/src
-
-# -- Source directories
-tools.home=${Env.GTS_TOOLS}
+src.tico=${basedir}/src
 
 # -- Tomcat home (assumes CATALINA_HOME environment variable exists)
 catalina.home=${Env.CATALINA_HOME}
 catalina.base=${Env.CATALINA_HOME}
-
-# -- Java home (assumes JAVA_HOME environment variable exists)
-#java.home=${Env.JAVA_HOME} <<-- already set
 
 # -- libraries
 lib.home=${basedir}/lib
@@ -71,12 +61,6 @@ compile.Xlint.noUnchecked=-Xlint:all,-unchecked,-serial,-path
 compile.Xlint.noDeprecation=-Xlint:all,-deprecation,-dep-ann,-unchecked,-serial,-path
 
 # -- compiler
-compiler.source=1.6
-compiler.target=1.6
-compiler.compiler=javac1.6
-
-# -- CompiletimeVars options
-# - (Specify as "-DCompiletimeVars.arg=..." on 'ant' command-line)
-CompiletimeVars.arg=
-
-# ---
+compiler.source=1.7
+compiler.target=1.7
+compiler.compiler=javac1.7

@@ -291,9 +291,9 @@ public class DatagramMessage
     // ------------------------------------------------------------------------
     // ------------------------------------------------------------------------
     // Example receiver:
-    //   bin/exeJava org.opengts.util.DatagramMessage -port=39000 -recv -echo 
+    //   bin/exeJava com.ticotrack.util.DatagramMessage -port=39000 -recv -echo 
     // Example transmitter:
-    //   bin/exeJava org.opengts.util.DatagramMessage -host=localhost -port=39000 -send=hello -recv
+    //   bin/exeJava com.ticotrack.util.DatagramMessage -host=localhost -port=39000 -send=hello -recv
 
     private static final String ARG_HOST[]      = new String[] { "host" , "h"       };
     private static final String ARG_PORT[]      = new String[] { "port" , "p"       };
